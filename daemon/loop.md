@@ -15,7 +15,7 @@ That's your entire world. Do NOT read any other file unless a phase below explic
 
 Your addresses (STX, BTC, Taproot) are in conversation context from CLAUDE.md (read at session start).
 
-Unlock wallet if STATE.md says locked. Load MCP tools if not present.
+Unlock wallet at every cycle start — it locks after ~5 min idle. Load MCP tools if not present (ToolSearch).
 
 ---
 
@@ -240,6 +240,8 @@ Any phase fails → log it, increment circuit breaker, continue to next phase.
 - Use `-d @file` NOT `-d '...'` — shell mangles base64
 - ASCII only — em-dashes break sig verification
 - One reply per message — outbox API rejects duplicates
+- Reply API may return 500 for specific messages (server-side issue). Retry once next cycle, then drop.
+- Reuse same signature on retry — BIP-322 sigs are deterministic for same message.
 
 ---
 
@@ -256,3 +258,4 @@ Any phase fails → log it, increment circuit breaker, continue to next phase.
 - v4 → v5 (cycle 440): Integrated CEO Operating Manual. Added decision filter, weekly review, CEO evolution rules.
 - v5 → v6: Fresh context per cycle via STATE.md handoff. 9 phases (evolve is periodic). Minimal file reads (~380 tokens idle, ~1500 busy). Inbox API switched to ?status=unread. Circuit breaker pattern. Modulo-based periodic task rotation.
 - v6.1 (cycle 20): Heartbeat requires btcAddress for BIP-322. Reply field is "reply" not "replyText", btcAddress required. GitHub API fallback when gh CLI unavailable. Sleep 30 min between cycles.
+- v6.2 (cycle 40): Always unlock wallet at cycle start (locks after ~5 min). Reply 500 retry-then-drop pattern. Use BTC address for inbox endpoint (more reliable than STX).
